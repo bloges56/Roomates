@@ -65,5 +65,46 @@ namespace Roommates.Repositories
             }
         }
 
+        /// return a single chore by the given id
+        public Chore GetById(int id)
+        {
+            /// create the connection
+            using (SqlConnection conn = Connection)
+            {
+                //open the connection
+                conn.Open();
+
+                //create a cmd from the connection
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    ///give command sql request along with given id
+                    cmd.CommandText = "SELECT Name FROM Chore WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    /// execute the sql
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    /// declare and initialize a chore to null
+                    Chore chore = null;
+
+                    /// if there is data, read it and and assign the data to the chore object
+                    if(reader.Read())
+                    {
+                        chore = new Chore
+                        {
+                            Id = id,
+                            Name = reader.GetString(reader.GetOrdinal("Name"))
+                        };
+                    }
+
+                    //close the reader
+                    reader.Close();
+
+                    //return the chore
+                    return chore;
+                }
+            }
+        }
+
     }
 }
