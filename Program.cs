@@ -115,12 +115,84 @@ namespace Roomates
                         Console.Write("Press any key to continue");
                         Console.ReadKey();
                         break;
+                    case ("Assign a chore"):
+                        AssignChoreToRoommate(choreRepo, roommateRepo);
+                        break;
                     case ("Exit"):
                         runProgram = false;
                         break;
                 }
             }
 
+        }
+
+        /// helper method to let the user assign a chore to a roommate
+        private static void AssignChoreToRoommate(ChoreRepository choreRepo, RoommateRepository roommateRepo)
+        {
+            /// list all the chores
+            List<Chore> chores = choreRepo.GetAll();
+            foreach (Chore c in chores)
+            {
+                Console.WriteLine($"{c.Id} - {c.Name}");
+            }
+
+            /// let the user pick a chore
+            int choreIndex = 0;
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine();
+                    Console.Write("Select a chore > ");
+
+                    string input = Console.ReadLine();
+                    choreIndex = int.Parse(input) - 1;
+                    break;
+                }
+                catch (Exception)
+                {
+
+                    continue;
+                }
+            }
+
+            Chore selectedChore = chores[choreIndex];
+
+            /// list all the roommates
+            List<Roommate> roommates = roommateRepo.GetAll();
+            foreach (Roommate r in roommates)
+            {
+                Console.WriteLine($"{r.Id} - {r.Firstname} {r.Lastname}");
+            }
+
+            /// let the user pick a roommate
+            int roommateIndex = 0;
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine();
+                    Console.Write("Select a roommate > ");
+
+                    string input = Console.ReadLine();
+                    roommateIndex = int.Parse(input) - 1;
+                    break;
+                }
+                catch (Exception)
+                {
+
+                    continue;
+                }
+            }
+            Roommate selectedRoommate = roommates[roommateIndex];
+
+            /// assign the chore
+            choreRepo.AssignChore(selectedRoommate.Id, selectedChore.Id);
+
+            /// display success message
+            Console.WriteLine("The chore has been successfully assigned!");
+            Console.Write("Press any key to continue");
+            Console.ReadKey();
         }
 
         static string GetMenuSelection()
@@ -137,6 +209,7 @@ namespace Roomates
             "Add a chore",
             "Search for roommate",
             "Show all unassigned chores",
+            "Assign a chore",
             "Exit"
         };
 
