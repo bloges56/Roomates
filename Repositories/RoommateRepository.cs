@@ -75,5 +75,72 @@ namespace Roommates.Repositories
                 }
             }
         }
+
+        public List<Roommate> GetAll()
+        {
+            /// start a connection
+            using(SqlConnection conn = Connection)
+            {
+                ///open the conneciton
+                conn.Open();
+
+                /// use a command
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    /// create the sql command
+                    cmd.CommandText = @"SELECT m.Id AS RoommateId, m.FirstName, m.LastName, m.RentPortion, m.MoveInDate, r.Id AS RoomId, r.Name, r.MaxOccupancy
+                                        FROM Roommate m
+                                        LEFT JOIN Room r on m.RoomId = r.Id";
+
+                    /// execute command and get reader
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    /// declare a list to hold the data
+                    List<Roommate> roommates = new List<Roommate>() { };
+
+                    /// read all of the data in the reader
+                    while (reader.Read())
+                    {
+                        /// store all of the data from the reader
+                        int roommateId = reader.GetInt32(reader.GetOrdinal("RoommateId"));
+                        string firstName = reader.GetString(reader.GetOrdinal("FirstName"));
+                        string lastName = reader.GetString(reader.GetOrdinal("LastName"));
+                        int rentPortion = reader.GetInt32(reader.GetOrdinal("RentPortion"));
+                        DateTime moveInDate = reader.GetDateTime(reader.GetOrdinal("MoveInDate"));
+                        int roomId = reader.GetInt32(reader.GetOrdinal("RoomId"));
+                        string roomName = reader.GetString(reader.GetOrdinal("Name"));
+                        int maxOccupancy = reader.GetInt32(reader.GetOrdinal("MaxOccupancy"));
+
+                        /// create a room object
+                        Room room = new Room()
+                        {
+                            Id = roomId,
+                            Name = roomName,
+                            MaxOccupancy = maxOccupancy
+                        };
+
+                        /// create a Roommate Object
+                        Roommate roommate = new Roommate()
+                        {
+                            Id = roommateId,
+                            Firstname = firstName,
+                            Lastname = lastName,
+                            RentPortion = rentPortion,
+                            MovedInDate = moveInDate,
+                            Room = room
+                        };
+
+                        /// add the roommate to the list
+                        roommates.Add(roommate);
+                    }
+
+                    /// close the reader
+                    reader.Close();
+
+                    /// return the list
+                    return roommates;
+                }
+            }
+        }
     }
 }
