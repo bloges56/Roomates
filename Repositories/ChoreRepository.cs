@@ -132,5 +132,55 @@ namespace Roommates.Repositories
                 }
             }
         }
+
+        public List<Chore> GetUnassignedChores()
+        {
+            ///establish a connection
+            using (SqlConnection conn = Connection)
+            {
+                /// open the connect
+                conn.Open();
+
+                /// use command
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    /// create sql command
+                    cmd.CommandText = @"SELECT c.Id, c.Name
+                                        FROM Chore c
+                                        LEFT JOIN RoommateChore rc on rc.ChoreId = c.Id
+                                        WHERE rc.ChoreId IS NULL";
+
+                    ///execute cmd and return reader
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+
+                    ///declare an empty list to store the Chore objects
+                    List<Chore> chores = new List<Chore>() { };
+
+                    /// read all the data in reader
+                    while(reader.Read())
+                    {
+                        int id = reader.GetInt32(reader.GetOrdinal("Id"));
+                        string name = reader.GetString(reader.GetOrdinal("Name"));
+
+                        ///create a chore object with the data
+                        Chore chore = new Chore()
+                        {
+                            Id = id,
+                            Name = name
+                        };
+
+                        ///add the chore to the list
+                        chores.Add(chore);
+                    }
+
+                    /// close the reader
+                    reader.Close();
+
+                    /// return the list
+                    return chores;
+                }
+            }
+        }
     }
 }
