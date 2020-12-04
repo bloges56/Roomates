@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Roommates.Repositories;
 using Roommates.Models;
@@ -118,6 +119,9 @@ namespace Roomates
                     case ("Assign a chore"):
                         AssignChoreToRoommate(choreRepo, roommateRepo);
                         break;
+                    case ("Update a room"):
+                        UpdateRoom(roomRepo);
+                        break;
                     case ("Exit"):
                         runProgram = false;
                         break;
@@ -195,6 +199,31 @@ namespace Roomates
             Console.ReadKey();
         }
 
+        private static void UpdateRoom(RoomRepository roomRepo)
+        {
+            List<Room> roomOptions = roomRepo.GetAll();
+            foreach (Room r in roomOptions)
+            {
+                Console.WriteLine($"{r.Id} - {r.Name} Max Occupancy({r.MaxOccupancy})");
+            }
+
+            Console.Write("Which room would you like to update? ");
+            int selectedRoomId = int.Parse(Console.ReadLine());
+            Room selectedRoom = roomOptions.FirstOrDefault(r => r.Id == selectedRoomId);
+
+            Console.Write("New Name: ");
+            selectedRoom.Name = Console.ReadLine();
+
+            Console.Write("New Max Occupancy: ");
+            selectedRoom.MaxOccupancy = int.Parse(Console.ReadLine());
+
+            roomRepo.Update(selectedRoom);
+
+            Console.WriteLine($"Room has been successfully updated");
+            Console.Write("Press any key to continue");
+            Console.ReadKey();
+        }
+
         static string GetMenuSelection()
         {
             Console.Clear();
@@ -210,6 +239,7 @@ namespace Roomates
             "Search for roommate",
             "Show all unassigned chores",
             "Assign a chore",
+            "Update a room",
             "Exit"
         };
 
